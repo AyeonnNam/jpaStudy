@@ -15,10 +15,14 @@ public class JPAMain {
         tx.begin();
 
         try{
-            Member member = new Member();
-            member.setName("남아연");
-            member.setAge(10);
-            em.persist(member);
+
+//            Member member = new Member();
+//            member.setName("남아연");
+//            member.setAge(10);
+//            em.persist(member);
+//
+//            Member member2 = new Member();
+//            member2.setName("김준수");
 
 
 //            Member member2 = new Member();
@@ -69,36 +73,45 @@ public class JPAMain {
 
 
 
-            em.flush();
-            em.clear();
+//            em.flush();
+//            em.clear();
 
             //영속성컨텍스트가 관리해주고 있음
-            List<Member> result = em.createQuery("select m from Member m", Member.class).getResultList();
-
-            Member member1 = result.get(0);
-            member1.setAge(30);
-
-            //멤버와 연관관계인 팀도 조회 가능, 대신 sql과 최대한 비슷하게 써주는 게 좋다 ex) join
-            List<Team> resultList = em.createQuery("select t from Member m join m.team t ", Team.class).getResultList();
-
-            //임베디드 프로젝션
-            List<Address> resultList1 = em.createQuery("select o.address from Order o", Address.class).getResultList();
-
-            //스칼라 프로젝션
-            Object singleResult = em.createQuery("select distinct m.name, m.age from Member m").getSingleResult();
-
-            List resultList2 = em.createQuery("select m.name, m.age from Member m").getResultList();
-
-            Object o = resultList2.get(0);
-            Object[] result2 = (Object[]) o;
-            System.out.println("name = " + result2[0]);
-            System.out.println("age = " + result2[1]);
-
-            List<Object[]> resultList3 = em.createQuery("select m.name, m.age from Member m").getResultList();
-
-            Object[] o1 = resultList3.get(0);
-            System.out.println("name = " + o1[0]);
-            System.out.println("age = " + o1[1]);
+//            List<Member> result = em.createQuery("select m from Member m", Member.class).getResultList();
+//
+//            Member member1 = result.get(0);
+//            member1.setAge(30);
+//
+//            //멤버와 연관관계인 팀도 조회 가능, 대신 sql과 최대한 비슷하게 써주는 게 좋다 ex) join
+//            List<Team> resultList = em.createQuery("select t from Member m join m.team t ", Team.class).getResultList();
+//
+//            //임베디드 프로젝션
+//            List<Address> resultList1 = em.createQuery("select o.address from Order o", Address.class).getResultList();
+//
+//            //스칼라 프로젝션
+//            Object singleResult = em.createQuery("select distinct m.name, m.age from Member m").getSingleResult();
+//
+//            List resultList2 = em.createQuery("select m.name, m.age from Member m").getResultList();
+//
+//            Object o = resultList2.get(0);
+//            Object[] result2 = (Object[]) o;
+//            System.out.println("name = " + result2[0]);
+//            System.out.println("age = " + result2[1]);
+//
+//            List<Object[]> resultList3 = em.createQuery("select m.name, m.age from Member m").getResultList();
+//
+//            Object[] o1 = resultList3.get(0);
+//            System.out.println("name = " + o1[0]);
+//            System.out.println("age = " + o1[1]);
+//
+//            List<MemberDTO> resultList4 = em.createQuery("select new jpql.MemberDTO(m.name, m.age) from Member m", MemberDTO.class).getResultList();
+//
+//            MemberDTO memberDTO = resultList4.get(0);
+//            memberDTO.getName();
+//            memberDTO.getAge();
+//
+//            System.out.println("memberDTO.getName() = " + memberDTO.getName());
+//            System.out.println("memberDTO.getAge() = " + memberDTO.getAge());
 
             //프로젝션 - 여러 값 조회
             /* SELECT m.username, m.age FROM Member m
@@ -111,6 +124,37 @@ public class JPAMain {
              *   순서와 타입이 일치하는 생성자 필요
              * */
 
+            /* 페이징 api
+            *  JPA는 페이징을 다음 두 API로 추상화한다.
+            *  setFirstResult(int startPosition) : 조회 시작 위치
+            *  setMaxResults(int maxResult) : 조회할 데이터 수
+            * */
+
+            //페이징 쿼리
+            //페이징 API 예시
+//            String jpql = "select m from Member m order by m.name desc";
+//            List<Member> resultList5 = em.createQuery(jpql, Member.class)
+//                    .setFirstResult(10)
+//                    .setMaxResults(20)
+//                    .getResultList();
+
+            for(int i =0; i <100; i++){
+                Member member = new Member();
+                member.setAge(i);
+                member.setName("member"+i);
+                em.persist(member);
+            }
+            em.flush();
+            em.clear();
+
+            List<Member> resultList = em.createQuery("select m from Member m order by m.age desc", Member.class)
+                    .setFirstResult(0)
+                    .setMaxResults(10)
+                    .getResultList();
+
+            for (Member member1 : resultList) {
+                System.out.println("member1 = " + member1);
+            }
 
             tx.commit();
     }catch(Exception e ){
